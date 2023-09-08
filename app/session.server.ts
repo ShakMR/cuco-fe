@@ -35,30 +35,37 @@ export async function getUser(request: Request) {
   const token = await getUserToken(request);
   if (token === undefined) return null;
 
-  const user = await getMe();
+  const user = await getMe(token);
   if (user) return user;
 
   throw await logout(request);
+}
+
+export async function requireToken(
+  request: Request,
+  redirectTo: string = new URL(request.url).pathname
+): Promise<string> {
+  const token = await getUserToken(request);
+  if (!token) {
+    const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
+    throw redirect(`/login?${searchParams}`);
+  }
+  return token;
 }
 
 export async function requireLogin(
   request: Request,
   redirectTo: string = new URL(request.url).pathname
 ) {
-  const token = await getUserToken(request);
-  if (!token) {
-    const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
-    throw redirect(`/login?${searchParams}`);
-  }
-  return !!token;
+  return !!(await requireToken(request, redirectTo));
 }
 
 export async function requireUser(request: Request) {
-  await requireLogin(request);
+  const token = await requireToken(request);
 
-  const { user, error } = await getMe();
-  if (user) {
-    return user;
+  const data = await getMe(token);
+  if (!("error" in data)) {
+    return data;
   }
 
   throw await logout(request);

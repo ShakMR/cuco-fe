@@ -3,7 +3,6 @@ import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 
-import { verifyLogin } from "~/models/user.server";
 import { createUserSession, getUserToken } from "~/session.server";
 import { safeRedirect, validateEmail } from "~/utils";
 import DefaultTemplate from "~/template/default";
@@ -44,17 +43,20 @@ export const action = async ({ request }: ActionArgs) => {
     );
   }
 
-  const { token, error } = await login(email, password);
+  const loginResponse = await login(email, password);
 
-  if (!token) {
-    return json({ errors: { email: error, password: null } }, { status: 400 });
+  if ("error" in loginResponse) {
+    return json(
+      { errors: { email: loginResponse.error, password: null } },
+      { status: 400 }
+    );
   }
 
   return createUserSession({
     redirectTo,
     remember: remember === "on",
     request,
-    token,
+    token: loginResponse.token,
   });
 };
 

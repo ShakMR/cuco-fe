@@ -16,6 +16,7 @@ type FetchOptions = {
   method?: MethodEnum;
   baseURI?: string;
   queryParams?: QueryParams;
+  authorization?: string;
 };
 
 type ErrorResponse = {
@@ -32,13 +33,19 @@ export async function fetchAPI<ReturnT>(
   options: FetchOptions
 ): Promise<{ data?: ReturnT; error?: ErrorResponse }> {
   try {
+    const headers = new Headers({
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    });
+
+    if (options.authorization) {
+      headers.set("Authorization", `Bearer ${options.authorization}`);
+    }
+
     const res = await fetch(buildURL(url, options.queryParams).toString(), {
       method: options.method || MethodEnum.GET,
       body: options.body ? JSON.stringify(options.body) : undefined,
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
+      headers,
     });
 
     if (res.ok) {
