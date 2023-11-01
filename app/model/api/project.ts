@@ -7,17 +7,18 @@ type Project = {
   isOpen: boolean;
   createdAt: string;
   shortName: string;
-}
+};
 
 export type SingleProjectResponse = APIResponse<Project>;
 export type ProjectListResponse = APIResponse<SingleProjectResponse[]>;
 
-export interface SingleProjectWithExpensesResponse extends APIResponse<Project> {
+export interface SingleProjectWithExpensesResponse
+  extends APIResponse<Project> {
   expenses: ExpenseListResponse;
 }
 
-export type ProjectListWithExpensesResponse = APIResponse<SingleProjectWithExpensesResponse[]>;
+export type ProjectListWithExpensesResponse = APIResponse<
+  SingleProjectWithExpensesResponse[]
+>;
 
 export default Project;
-
-

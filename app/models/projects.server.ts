@@ -1,96 +1,104 @@
-import type { User } from "@prisma/client";
 import { ProjectNotFount } from "~/exceptions/projectNotFount";
-import type Project from "~/model/api/project";
 import type { SingleProjectResponse } from "~/model/api/project";
+import { fetchAPI, MethodEnum } from "~/models/api";
+import type {
+  ParticipationEntry,
+  UserParticipationResponse,
+} from "~/model/api/participation";
+import type UserModel from "~/model/api/user";
 
-type ProjectParticipation = {
-  project: SingleProjectResponse;
-  share: number;
-};
+type ProjectParticipation = ParticipationEntry;
 
-export async function fetchUserProjects(userUuid: string): Promise<{
+export async function fetchUserProjects(
+  userUuid: string,
+  token: string
+): Promise<{
   data: ProjectParticipation[]; // TODO change this for a proper participation response
   meta?: any;
 }> {
-  const res = await fetch(
-    `http://localhost:3000/api/participations/user/${userUuid}`
-  );
+  console.log("UUID", userUuid);
+  const res = await fetchAPI(`/participation/user/${userUuid}`, {
+    authorization: token,
+  });
 
-  if (!res.ok && res.status !== 404) {
-    const data = await res.json();
-    throw new Error(data.error);
+  if (res.error) {
+    throw new Error(res.error.reason);
   }
 
-  if (res.status === 404) {
-    return { data: [], meta: null };
-  }
+  // how to deal with 404?
 
-  const participation = await res.json();
+  const participation = res as UserParticipationResponse;
   return {
     data: participation.data.participation,
     meta: participation.meta,
   };
 }
 
-export async function fetchProjectByShortName(
-  shortName: string,
-  includeExpenses: boolean = false
-): Promise<SingleProjectResponse> {
-  const res = await fetch(
-    `http://localhost:3000/api/projects/search?shortName=${shortName}&includeExpenses=${includeExpenses}`
-  );
+type FetchProjectByShortNameParams = {
+  shortName: string;
+};
 
-  if (!res.ok) {
-    const data = await res.json();
-    throw new Error(data.errors);
+export async function fetchProjectByShortName(
+  { shortName }: FetchProjectByShortNameParams,
+  token: string
+): Promise<SingleProjectResponse> {
+  const res = await fetchAPI(`/projects/search?shortName=${shortName}`, {
+    authorization: token,
+  });
+
+  if (res.error) {
+    throw new Error(res.error.reason);
   }
 
-  const responseBody = await res.json();
-
-  console.log(responseBody);
-  return responseBody.data[0];
+  return (res.data as SingleProjectResponse[])[0];
 }
 
-export async function joinUserToProject({
-  user,
-  projectShortName,
-}: {
-  user: User;
-  projectShortName: string;
-}) {
-  const project = await fetchProjectByShortName(projectShortName);
+export async function joinUserToProject(
+  {
+    user,
+    projectShortName,
+  }: {
+    user: UserModel;
+    projectShortName: string;
+  },
+  token: string
+) {
+  const project = await fetchProjectByShortName(
+    { shortName: projectShortName },
+    token
+  );
+
   if (!project) {
     throw new ProjectNotFount(projectShortName);
   }
 
-  const res = await fetch(`http://localhost:3000/api/participations/`, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      userUuid: user.externalId,
+  const { data, error } = await fetchAPI("/participation", {
+    method: MethodEnum.POST,
+    body: {
+      userUuid: user.uuid,
       projectUuid: project.data.uuid,
-    }),
+    },
+    authorization: token,
   });
 
-  if (!res.ok) {
-    const data = await res.json();
-    throw new Error(data.errors);
+  if (error) {
+    throw new Error(error.reason);
   }
 
-  return res.json();
+  return data;
 }
 
-export async function fetchProject({
-  user,
-  projectShortName,
-}: {
-  user: User;
-  projectShortName: string;
-}) {
+export async function fetchProject(
+  {
+    user,
+    projectShortName,
+  }: {
+    user: UserModel;
+    projectShortName: string;
+  },
+  token: string
+) {
   // TODO: use JWT token to authenticate user against server.
   console.log("LOGGED USER", user);
-  return fetchProjectByShortName(projectShortName);
+  return fetchProjectByShortName({ shortName: projectShortName }, token);
 }
