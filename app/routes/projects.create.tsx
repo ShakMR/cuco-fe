@@ -1,10 +1,10 @@
 import { Form, useActionData } from "@remix-run/react";
-import type { ActionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import TextField from "~/components/form/TextField";
 import { useRef } from "react";
+import TextField from "~/components/form/TextField";
+import type { ActionArgs } from "@remix-run/node";
 import { requireToken, requireUser } from "~/session.server";
-import { joinUserToProject } from "~/models/projects.server";
+import { json, redirect } from "@remix-run/node";
+import { createProject, joinUserToProject } from "~/models/projects.server";
 import { ProjectNotFount } from "~/exceptions/projectNotFount";
 
 export const action = async ({ request }: ActionArgs) => {
@@ -12,39 +12,40 @@ export const action = async ({ request }: ActionArgs) => {
   const token = await requireToken(request);
 
   const formData = await request.formData();
-  const shortName = formData.get("shortName");
+  const name = formData.get("name");
 
-  if (typeof shortName !== "string" || shortName.length === 0) {
+  if (typeof name !== "string" || name.length === 0) {
     return json(
-      { errors: { shortName: "Project Short name is required" } },
+      { errors: { name: "Project name is required" } },
       { status: 400 }
     );
   }
 
   try {
-    await joinUserToProject({ user, projectShortName: shortName }, token);
+    const project = await createProject({ user, projectName: name }, token);
 
-    return redirect(`/projects/${shortName}`);
+    return redirect(`/projects/${project.shortName}`);
   } catch (e) {
+    console.error(e);
     if (e instanceof ProjectNotFount) {
       return json(
-        { errors: { shortName: "Project not found" } },
+        { errors: { name: "Couldn't create project" } },
         { status: 400 }
       );
     }
-    return json({ errors: { shortName: "" } });
+    return json({ errors: { name: "" } });
   }
 };
 
-export default function JoinProjects() {
+export default function CreateProject() {
   const actionData = useActionData<typeof action>();
   const shortNameRef = useRef<HTMLInputElement>(null);
   return (
     <Form method="post" className="container-md space-y-6">
       <TextField
-        name="shortName"
-        label="Project short name"
-        error={actionData?.errors?.shortName}
+        name="name"
+        label="Project name"
+        error={actionData?.errors?.name}
         inputRef={shortNameRef}
       />
 

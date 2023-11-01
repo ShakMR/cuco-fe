@@ -53,6 +53,29 @@ export async function fetchProjectByShortName(
   return (res.data as SingleProjectResponse[])[0];
 }
 
+async function joinUserToProjectByUuid(
+  { user, projectUuid }: { user: UserModel; projectUuid: string },
+  token: string
+) {
+  const { data, error } = await fetchAPI<UserParticipationResponse>(
+    "/participation",
+    {
+      method: MethodEnum.POST,
+      body: {
+        userUuid: user.uuid,
+        projectUuid: projectUuid,
+      },
+      authorization: token,
+    }
+  );
+
+  if (error) {
+    throw new Error(error.reason);
+  }
+
+  return data!;
+}
+
 export async function joinUserToProject(
   {
     user,
@@ -62,7 +85,7 @@ export async function joinUserToProject(
     projectShortName: string;
   },
   token: string
-) {
+): Promise<UserParticipationResponse> {
   const project = await fetchProjectByShortName(
     { shortName: projectShortName },
     token
@@ -72,20 +95,10 @@ export async function joinUserToProject(
     throw new ProjectNotFount(projectShortName);
   }
 
-  const { data, error } = await fetchAPI("/participation", {
-    method: MethodEnum.POST,
-    body: {
-      userUuid: user.uuid,
-      projectUuid: project.data.uuid,
-    },
-    authorization: token,
-  });
-
-  if (error) {
-    throw new Error(error.reason);
-  }
-
-  return data;
+  return joinUserToProjectByUuid(
+    { user, projectUuid: project.data.uuid },
+    token
+  );
 }
 
 export async function fetchProject(
@@ -101,4 +114,33 @@ export async function fetchProject(
   // TODO: use JWT token to authenticate user against server.
   console.log("LOGGED USER", user);
   return fetchProjectByShortName({ shortName: projectShortName }, token);
+}
+
+export async function createProject(
+  {
+    user,
+    projectName,
+  }: {
+    user: UserModel;
+    projectName: string;
+  },
+  token: string
+): Promise<SingleProjectResponse["data"]> {
+  const { data: newProject, error: newProjectError } = await fetchAPI<
+    SingleProjectResponse["data"]
+  >("/projects", {
+    method: MethodEnum.POST,
+    body: {
+      name: projectName,
+    },
+    authorization: token,
+  });
+
+  if (newProjectError) {
+    throw new Error(newProjectError.reason);
+  }
+
+  await joinUserToProjectByUuid({ user, projectUuid: newProject!.uuid }, token);
+
+  return newProject!;
 }
