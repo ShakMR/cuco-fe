@@ -1,7 +1,7 @@
 import type APIResponse from "~/model/api/apiResponse";
 import type { ExpenseListResponse } from "~/model/api/expenses.model";
 
-type Project = {
+export type Project = {
   name: string;
   uuid: string;
   isOpen: boolean;
@@ -20,5 +20,3 @@ export interface SingleProjectWithExpensesResponse
 export type ProjectListWithExpensesResponse = APIResponse<
   SingleProjectWithExpensesResponse[]
 >;
-
-export default Project;

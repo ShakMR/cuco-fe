@@ -30,7 +30,7 @@ export default function Project() {
   return (
     <div className="flex flex-col">
       <div className="mb-2 px-6 py-2">
-        <ProjectDetails project={project.data} />
+        <ProjectDetails {...project.data} />
       </div>
       <h2 className="mb-2 text-xl font-bold italic">Expenses</h2>
       <div className="flex flex-row gap-6">
@@ -42,6 +42,7 @@ export default function Project() {
             className="rounded-full text-xl font-light"
             cta="+"
             href="#"
+            disabled={!project.isOpen}
           />
           <Outlet />
         </div>
