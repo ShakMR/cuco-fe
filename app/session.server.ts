@@ -1,8 +1,9 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
-import type { User } from "~/models/user.server";
 import { getMe } from "~/models/user.server";
+import type UserModel from "~/model/api/user";
+import type { UserWithToken } from "~/model/api/user";
 
 invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set");
 
@@ -26,17 +27,23 @@ export async function getSession(request: Request) {
 
 export async function getUserToken(
   request: Request
-): Promise<User["id"] | undefined> {
+): Promise<string | undefined> {
   const session = await getSession(request);
   return session.get(TOKEN_SESSION_KEY);
 }
 
-export async function getUser(request: Request) {
+export async function getUser(request: Request): Promise<UserWithToken | null> {
   const token = await getUserToken(request);
   if (token === undefined) return null;
 
   const user = await getMe(token);
-  if (user) return user;
+
+  if (!("error" in user)) {
+    return {
+      ...user,
+      token,
+    };
+  }
 
   throw await logout(request);
 }
@@ -65,7 +72,10 @@ export async function requireUser(request: Request) {
 
   const data = await getMe(token);
   if (!("error" in data)) {
-    return data;
+    return {
+      ...data,
+      token,
+    };
   }
 
   throw await logout(request);

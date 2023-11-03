@@ -12,6 +12,7 @@ import {
 
 import { getUser } from "~/session.server";
 import stylesheet from "~/tailwind.css";
+import { fetchUserProjects } from "~/models/projects.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
@@ -19,7 +20,13 @@ export const links: LinksFunction = () => [
 ];
 
 export const loader = async ({ request }: LoaderArgs) => {
-  return json({ user: await getUser(request) });
+  const user = await getUser(request);
+  const projects = user ? await fetchUserProjects(user.uuid, user.token) : null;
+
+  return json({
+    user,
+    projects: projects?.data.map(({ data: { project } }) => project.data),
+  });
 };
 
 export default function App() {

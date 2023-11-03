@@ -3,8 +3,6 @@ import type UserModel from "~/model/api/user";
 import { fetchAPI, MethodEnum } from "~/models/api";
 import { getUserToken } from "~/session.server";
 
-export type { User } from "@prisma/client";
-
 async function getUserOnPath(path: string, token: string) {
   const { data, error } = await fetchAPI<UserModel>(path, {
     method: MethodEnum.GET,

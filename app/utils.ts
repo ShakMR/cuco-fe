@@ -1,7 +1,8 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
-
-import type { User } from "~/models/user.server";
+import type UserModel from "~/model/api/user";
+import type { ParticipationResponse } from "~/model/api/participation";
+import type { Project } from "~/model/api/project";
 
 const DEFAULT_REDIRECT = "/";
 
@@ -44,11 +45,11 @@ export function useMatchesData(
   return route?.data;
 }
 
-function isUser(user: any): user is User {
+function isUser(user: any): user is UserModel {
   return user && typeof user === "object" && typeof user.email === "string";
 }
 
-export function useOptionalUser(): User | undefined {
+export function useOptionalUser(): UserModel | undefined {
   const data = useMatchesData("root");
   if (!data || !isUser(data.user)) {
     return undefined;
@@ -56,7 +57,7 @@ export function useOptionalUser(): User | undefined {
   return data.user;
 }
 
-export function useUser(): User {
+export function useUser(): UserModel {
   const maybeUser = useOptionalUser();
   if (!maybeUser) {
     throw new Error(
@@ -68,4 +69,13 @@ export function useUser(): User {
 
 export function validateEmail(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
+}
+
+export function useProjects(): Project[] {
+  const data = useMatchesData("root");
+  if (!data || !data.projects) {
+    return [];
+  }
+
+  return data.projects as Project[];
 }

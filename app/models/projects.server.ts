@@ -4,18 +4,14 @@ import { fetchAPI, MethodEnum } from "~/models/api";
 import type {
   ParticipationEntry,
   UserParticipationResponse,
+  ParticipationResponse,
 } from "~/model/api/participation";
 import type UserModel from "~/model/api/user";
-
-type ProjectParticipation = ParticipationEntry;
 
 export async function fetchUserProjects(
   userUuid: string,
   token: string
-): Promise<{
-  data: ProjectParticipation[]; // TODO change this for a proper participation response
-  meta?: any;
-}> {
+): Promise<ParticipationResponse> {
   console.log("UUID", userUuid);
   const res = await fetchAPI(`/participation/user/${userUuid}`, {
     authorization: token,

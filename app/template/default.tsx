@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 
 import { Header } from "~/components/header";
-import { useOptionalUser } from "~/utils";
-import { Link } from "@remix-run/react";
-import type Project from "~/model/api/project";
+import { useOptionalUser, useProjects } from "~/utils";
+import { Link, useLocation } from "@remix-run/react";
+import type { Project } from "~/model/api/project";
+import { useState } from "react";
 
 type Props = {
   children: ReactNode;
@@ -18,18 +19,28 @@ const storeNavigationContext = (state: any) => {
   localStorage.setItem("navigationState", state);
 };
 
-export default function DefaultTemplate({
-  children,
-  currentPage = "home",
-  projects = [],
-}: Props) {
-  const user = useOptionalUser();
-  const isLoggedIn = !!user;
-  const projectClassName =
-    currentPage === "projects" ? selectedClassNames : unSelectedClassnames;
-  const joinClassName =
-    currentPage === "joinProject" ? selectedClassNames : unSelectedClassnames;
+const JOIN_PATH = "/projects/join";
+const CREATE_PATH = "/projects/create";
 
+export default function DefaultTemplate({ children }: Props) {
+  const user = useOptionalUser();
+  const projects = useProjects();
+  const isLoggedIn = !!user;
+  const currentPage = useLocation().pathname;
+  const [showProjects, setShowProjects] = useState(false);
+  const projectClassName =
+    ![CREATE_PATH, JOIN_PATH].includes(currentPage) && showProjects
+      ? selectedClassNames
+      : unSelectedClassnames;
+  const joinClassName =
+    currentPage === JOIN_PATH ? selectedClassNames : unSelectedClassnames;
+  const createClassName =
+    currentPage === CREATE_PATH ? selectedClassNames : unSelectedClassnames;
+  console.log(
+    currentPage,
+    currentPage === JOIN_PATH,
+    currentPage === CREATE_PATH
+  );
   // @ts-ignore
   return (
     <div className="flex h-full flex-col">
@@ -40,16 +51,19 @@ export default function DefaultTemplate({
         {isLoggedIn && (
           <div className="w-60 grow-0 bg-indigo-300 p-4">
             <Link
-              to="/projects"
-              className={
-                "inline-block w-full px-4 py-2 font-bold tracking-wide text-white transition-all duration-300 ease-in-out " +
-                projectClassName
-              }
+              to="#"
+              className={`inline-block w-full px-4 py-2 font-bold tracking-wide text-white transition-all duration-300 ease-in-out ${projectClassName}`}
+              onClick={() => setShowProjects(!showProjects)}
             >
               Projects
             </Link>
             {projects?.length > 0 && (
-              <div className="my-2 ml-4">
+              <div
+                className={`ml-4 ${
+                  showProjects ? "my-2 max-h-full" : "my-0 max-h-0"
+                }
+                overflow-hidden transition-height duration-500 `}
+              >
                 {projects.map(({ name, shortName, uuid }) => (
                   <Link
                     key={shortName}
@@ -64,20 +78,14 @@ export default function DefaultTemplate({
               </div>
             )}
             <Link
-              to="/projects/join"
-              className={
-                "mt-4 inline-block w-full px-4 py-2 font-bold tracking-wide text-white transition-all duration-300 ease-in-out " +
-                joinClassName
-              }
+              to={JOIN_PATH}
+              className={`mt-4 inline-block w-full px-4 py-2 font-bold tracking-wide text-white transition-all duration-300 ease-in-out ${joinClassName}`}
             >
               Join Project
             </Link>
             <Link
-              to="/projects/create"
-              className={
-                "mt-4 inline-block w-full px-4 py-2 font-bold tracking-wide text-white transition-all duration-300 ease-in-out " +
-                joinClassName
-              }
+              to={CREATE_PATH}
+              className={`mt-4 inline-block w-full px-4 py-2 font-bold tracking-wide text-white transition-all duration-300 ease-in-out ${createClassName}`}
             >
               Create new Project
             </Link>

@@ -14,3 +14,8 @@ export type UserParticipationResponse = APIResponse<{
   user: BackendUserResponse;
   participation: ParticipationEntry[];
 }>;
+
+export type ParticipationResponse = {
+  data: ParticipationEntry[];
+  meta: any;
+};

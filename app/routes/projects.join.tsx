@@ -9,7 +9,6 @@ import { ProjectNotFount } from "~/exceptions/projectNotFount";
 
 export const action = async ({ request }: ActionArgs) => {
   const user = await requireUser(request);
-  const token = await requireToken(request);
 
   const formData = await request.formData();
   const shortName = formData.get("shortName");
@@ -22,7 +21,7 @@ export const action = async ({ request }: ActionArgs) => {
   }
 
   try {
-    await joinUserToProject({ user, projectShortName: shortName }, token);
+    await joinUserToProject({ user, projectShortName: shortName }, user.token);
 
     return redirect(`/projects/${shortName}`);
   } catch (e) {

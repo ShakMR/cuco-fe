@@ -1,5 +1,7 @@
 import type { Project } from "~/model/api/project";
 import { Button } from "~/components/button";
+import { Toast } from "~/components/toast/Toast";
+import { useState } from "react";
 
 const getProjectShareLink = (
   project: WithAllOptionalExcept<Project, "shortName">
@@ -7,6 +9,7 @@ const getProjectShareLink = (
   `${window.location.protocol}//${window.location.host}/join/project/${project.shortName}`;
 
 const ProjectDetails = ({ name, shortName }: Project) => {
+  const [shouldShowToast, setShouldShowToast] = useState<boolean>(false);
   return (
     <div className="row flex justify-between">
       <div className="row flex justify-start gap-4">
@@ -24,10 +27,12 @@ const ProjectDetails = ({ name, shortName }: Project) => {
             }
             // @ts-ignore
             await navigator.clipboard.writeText(link);
-            alert("copied");
+            setShouldShowToast(true);
+            setTimeout(() => setShouldShowToast(false), 1000);
           }}
         />
       </div>
+      <Toast durationMs={300} text={"Copied"} show={shouldShowToast} />
     </div>
   );
 };
