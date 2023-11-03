@@ -54,7 +54,7 @@ export default function CreateProject() {
           type="submit"
           className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
         >
-          Save
+          Create new project
         </button>
       </div>
     </Form>
