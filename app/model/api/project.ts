@@ -9,14 +9,8 @@ export type Project = {
   shortName: string;
 };
 
-export type SingleProjectResponse = APIResponse<Project>;
+export type SingleProjectResponse = APIResponse<Project> & {
+  expenses: APIResponse<ExpenseListResponse>;
+};
+
 export type ProjectListResponse = APIResponse<SingleProjectResponse[]>;
-
-export interface SingleProjectWithExpensesResponse
-  extends APIResponse<Project> {
-  expenses: ExpenseListResponse;
-}
-
-export type ProjectListWithExpensesResponse = APIResponse<
-  SingleProjectWithExpensesResponse[]
->;

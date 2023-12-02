@@ -6,6 +6,10 @@ export default {
     extend: {
       transitionProperty: {
         height: "max-height",
+        width: "max-width",
+      },
+      animation: {
+        "bounce-once": "bounce 0.5s ease-in-out 1",
       },
     },
   },

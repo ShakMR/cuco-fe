@@ -32,15 +32,21 @@ export async function fetchUserProjects(
 
 type FetchProjectByShortNameParams = {
   shortName: string;
+  withExpenses?: boolean;
 };
 
 export async function fetchProjectByShortName(
-  { shortName }: FetchProjectByShortNameParams,
+  { shortName, withExpenses }: FetchProjectByShortNameParams,
   token: string
 ): Promise<SingleProjectResponse> {
-  const res = await fetchAPI(`/projects/search?shortName=${shortName}`, {
-    authorization: token,
-  });
+  const res = await fetchAPI(
+    `/projects/search?shortName=${shortName}${
+      withExpenses ? `&includeExpenses=${true}` : ""
+    }`,
+    {
+      authorization: token,
+    }
+  );
 
   if (res.error) {
     throw new Error(res.error.reason);
@@ -101,15 +107,18 @@ export async function fetchProject(
   {
     user,
     projectShortName,
+    withExpenses = false,
   }: {
     user: UserModel;
     projectShortName: string;
+    withExpenses?: boolean;
   },
   token: string
 ) {
-  // TODO: use JWT token to authenticate user against server.
-  console.log("LOGGED USER", user);
-  return fetchProjectByShortName({ shortName: projectShortName }, token);
+  return fetchProjectByShortName(
+    { shortName: projectShortName, withExpenses },
+    token
+  );
 }
 
 export async function createProject(

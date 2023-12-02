@@ -25,9 +25,10 @@ export const LogoutButton = ({ cta }: { cta: string }) => (
 export const Button = ({
   cta,
   onClick,
+  children,
   ...props
 }: {
-  cta: string;
+  cta?: string;
   onClick: () => void;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) => (
   <button
@@ -35,6 +36,6 @@ export const Button = ({
     onClick={() => onClick && onClick()}
     className={`hover:bg-purple-dark inline-block rounded bg-indigo-500 px-4 py-2 font-bold text-white shadow shadow-indigo-500 transition-shadow duration-300 ease-in-out hover:shadow-md hover:shadow-indigo-500 ${props.className}`}
   >
-    {cta}
+    {children || cta}
   </button>
 );

@@ -25,9 +25,9 @@ const CREATE_PATH = "/projects/create";
 export default function DefaultTemplate({ children }: Props) {
   const user = useOptionalUser();
   const projects = useProjects();
-  const isLoggedIn = !!user;
   const currentPage = useLocation().pathname;
   const [showProjects, setShowProjects] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const projectClassName =
     ![CREATE_PATH, JOIN_PATH].includes(currentPage) && showProjects
       ? selectedClassNames
@@ -36,20 +36,26 @@ export default function DefaultTemplate({ children }: Props) {
     currentPage === JOIN_PATH ? selectedClassNames : unSelectedClassnames;
   const createClassName =
     currentPage === CREATE_PATH ? selectedClassNames : unSelectedClassnames;
-  console.log(
-    currentPage,
-    currentPage === JOIN_PATH,
-    currentPage === CREATE_PATH
-  );
-  // @ts-ignore
+  const isLoggedIn = !!user;
+
   return (
     <div className="flex h-full flex-col">
       <div className="col-span-12 w-full">
-        <Header isLoggedIn={isLoggedIn} loginHref="/login" />
+        <Header
+          isLoggedIn={isLoggedIn}
+          loginHref="/login"
+          onMenuClick={() => setShowMenu(!showMenu)}
+        />
       </div>
-      <div className="flex h-full flex-row justify-start gap-4">
+      <div className="flex h-full flex-row justify-start md:gap-4">
         {isLoggedIn && (
-          <div className="w-60 grow-0 bg-indigo-300 p-4">
+          <div
+            className={`${
+              showMenu
+                ? "absolute z-20 ease-in-out sm:max-w-full"
+                : "translate-x-[-100%] overflow-hidden md:translate-x-0"
+            } absolute h-full w-full grow-0 bg-indigo-300 p-4 transition-transform duration-500 ease-in-out md:relative md:block md:w-60 md:translate-x-0`}
+          >
             <Link
               to="#"
               className={`inline-block w-full px-4 py-2 font-bold tracking-wide text-white transition-all duration-300 ease-in-out ${projectClassName}`}

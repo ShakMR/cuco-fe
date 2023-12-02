@@ -2,7 +2,7 @@ import type APIResponse from "~/model/api/apiResponse";
 import type BackendUserModel from "~/model/api/user";
 
 export type CurrencyModel = {
-  name: "EUR" | "USD",
+  name: "EUR" | "USD";
 };
 
 enum PaymentTypes {
@@ -11,19 +11,26 @@ enum PaymentTypes {
 }
 
 export type PaymentTypeModel = {
-  name: PaymentTypes
-}
+  name: PaymentTypes;
+};
 
-type ExpenseModel = {
+export type ExpenseModel = {
   uuid: string;
   amount: number;
   concept: string;
-  createdAt: Date;
   currency: CurrencyModel;
   date: Date;
   payer: BackendUserModel;
   paymentType: PaymentTypeModel;
-}
+};
+
+export type CreateExpenseModel = {
+  amount: number;
+  concept: string;
+  currency: string;
+  paymentType: string;
+  date: Date;
+};
 
 export type ExpenseResponse = APIResponse<ExpenseModel>;
 export type ExpenseListResponse = APIResponse<ExpenseModel[]>;
