@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { Header } from "~/components/header";
-import { useOptionalUser, useProjects } from "~/utils";
+import { useOptionalUser, useProjects } from "~/utils/remix";
 import { Link, useLocation } from "@remix-run/react";
 import type { Project } from "~/model/api/project";
 import { useState } from "react";

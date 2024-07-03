@@ -1,7 +1,7 @@
 import type { V2_MetaFunction, ActionArgs } from "@remix-run/node";
 import { Link, useActionData } from "@remix-run/react";
 
-import { useOptionalUser } from "~/utils";
+import { useOptionalUser } from "~/utils/remix";
 import { redirect } from "@remix-run/node";
 import { requireLogin } from "~/session.server";
 

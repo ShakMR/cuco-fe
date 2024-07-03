@@ -1,5 +1,5 @@
 import type { Project } from "~/model/api/project";
-import { Button } from "~/components/button";
+import { Button, ButtonLink } from "~/components/button";
 import { Toast } from "~/components/toast/Toast";
 import { useState } from "react";
 
@@ -16,7 +16,7 @@ const ProjectDetails = ({ name, shortName }: Project) => {
         <h1 className="text-3xl font-bold">{name}</h1>
         <sub className="text-lg italic text-gray-500">({shortName})</sub>
       </div>
-      <div>
+      <div className="row flex gap-2">
         <Button
           cta="Share Join Link"
           className="text-base"
@@ -30,6 +30,11 @@ const ProjectDetails = ({ name, shortName }: Project) => {
             setShouldShowToast(true);
             setTimeout(() => setShouldShowToast(false), 1000);
           }}
+        />
+        <ButtonLink
+          cta="Config"
+          className="text-base"
+          href={`${shortName}/config`}
         />
       </div>
       <Toast durationMs={300} text={"Copied"} show={shouldShowToast} />

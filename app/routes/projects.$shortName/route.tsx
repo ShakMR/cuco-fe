@@ -45,7 +45,6 @@ export const action = async ({ request }: ActionArgs): Promise<FormErrors> => {
   const concept = formData.get("concept");
   const projectUuid = formData.get("projectUuid")!;
 
-  console.log(amount, concept, projectUuid, typeof amount);
   if (!amount || isNaN(parseFloat(amount.toString()))) {
     return json({ errors: { amount: "Isn't a valid number" }, status: 400 });
   }
@@ -93,6 +92,7 @@ export default function Project() {
       <div className="mb-2 py-2 pb-6">
         <ProjectDetails {...project.data} />
       </div>
+      <Outlet />
       <h2 className="mb-2 text-xl font-bold italic">Expenses</h2>
       <div className="flex flex-row gap-6">
         <div className="grow overflow-scroll">

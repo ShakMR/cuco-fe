@@ -4,7 +4,7 @@ import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 
 import { getUserToken } from "~/session.server";
-import { safeRedirect, validateEmail } from "~/utils";
+import { safeRedirect, validateEmail } from "~/utils/remix";
 import DefaultTemplate from "~/template/default";
 import TextField from "~/components/form/TextField";
 import { signup } from "~/models/auth";

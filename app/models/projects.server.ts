@@ -7,12 +7,42 @@ import type {
   ParticipationResponse,
 } from "~/model/api/participation";
 import type UserModel from "~/model/api/user";
+import { createLogger } from "vite";
+import { LoggerFactory } from "~/models/helpers/logger";
+import type { ProjectParticipation } from "~/model/api/participation";
+
+const logger = LoggerFactory.get("Projects", "debug");
+
+export async function fetchProjectParticipants(
+  projectShortName: string,
+  token: string
+): Promise<ProjectParticipation["participants"]> {
+  logger.debug(`Get project participants ${projectShortName}`);
+
+  const { data } = await fetchProjectByShortName(
+    { shortName: projectShortName },
+    token
+  );
+
+  const res = await fetchAPI<ProjectParticipation>(
+    `/participation/project/${data.uuid}`,
+    {
+      authorization: token,
+    }
+  );
+
+  if (res.error) {
+    throw new Error(res.error.reason);
+  }
+
+  return res.data!.participants;
+}
 
 export async function fetchUserProjects(
   userUuid: string,
   token: string
 ): Promise<ParticipationResponse> {
-  console.log("UUID", userUuid);
+  logger.debug("UUID", userUuid);
   const res = await fetchAPI(`/participation/user/${userUuid}`, {
     authorization: token,
   });
