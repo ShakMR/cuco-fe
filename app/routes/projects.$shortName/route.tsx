@@ -8,7 +8,7 @@ import ExpenseList from "~/components/expense/ExpenseList";
 import ProjectDetails from "~/components/project/ProjectDetails";
 import { Button } from "~/components/button";
 import TextField from "~/components/form/TextField";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { addExpenseToProject } from "~/models/expenses.server";
 import { ProjectNotFount } from "~/exceptions/projectNotFount";
 
@@ -62,7 +62,7 @@ export const action = async ({ request }: ActionArgs): Promise<FormErrors> => {
         expense: {
           amount: parseFloat(amount.toString()),
           concept: concept.toString(),
-          currency: "eur",
+          currency: "euro",
           paymentType: "debit",
           date: new Date(),
         },
