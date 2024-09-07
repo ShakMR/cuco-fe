@@ -11,6 +11,8 @@ import TextField from "~/components/form/TextField";
 import { useState } from "react";
 import { addExpenseToProject } from "~/models/expenses.server";
 import { ProjectNotFount } from "~/exceptions/projectNotFount";
+import SelectField from "~/components/form/SelectField";
+import { Euro } from "~/model/currency";
 
 export async function loader({ params, request, context }: LoaderArgs) {
   const user = await requireUser(request);
@@ -33,6 +35,7 @@ type FormErrors = {
   errors?: {
     concept?: string;
     amount?: string;
+    currency?: string;
   };
   status?: number;
 };
@@ -43,6 +46,7 @@ export const action = async ({ request }: ActionArgs): Promise<FormErrors> => {
   const formData = await request.formData();
   const amount = formData.get("amount");
   const concept = formData.get("concept");
+  const currency = formData.get("currency");
   const projectUuid = formData.get("projectUuid")!;
 
   if (!amount || isNaN(parseFloat(amount.toString()))) {
@@ -51,6 +55,10 @@ export const action = async ({ request }: ActionArgs): Promise<FormErrors> => {
 
   if (!concept) {
     return json({ errors: { concept: "Required" }, status: 400 });
+  }
+
+  if (!currency) {
+    return json({ errors: { currency: "Invalid currency" }, status: 400 });
   }
 
   try {
@@ -62,7 +70,7 @@ export const action = async ({ request }: ActionArgs): Promise<FormErrors> => {
         expense: {
           amount: parseFloat(amount.toString()),
           concept: concept.toString(),
-          currency: "euro",
+          currency: currency.toString(),
           paymentType: "debit",
           date: new Date(),
         },
@@ -124,13 +132,25 @@ export default function Project() {
                 placeholder="Random Concept"
                 error={actionData?.errors?.concept}
               />
-              {/* add currency */}
               <TextField
                 name="amount"
                 label="Amount"
                 type="number"
                 placeholder="10.00"
                 error={actionData?.errors?.amount}
+              />
+              <SelectField
+                name="currency"
+                label="Currency"
+                readOnly
+                defaultValue={Euro.short_name}
+                options={[
+                  {
+                    label: `${Euro.full_name} (${Euro.symbol})`,
+                    value: Euro.short_name,
+                  },
+                ]}
+                error={actionData?.errors?.currency}
               />
               <Button cta="Add expense" onClick={() => {}} />
             </div>
